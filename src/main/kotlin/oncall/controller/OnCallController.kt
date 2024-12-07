@@ -2,6 +2,7 @@ package oncall.controller
 
 import oncall.controller.domain.UserInteractionController
 import oncall.controller.validator.MonthAndDaysValidator
+import oncall.controller.validator.WorkingPeopleValidator
 import oncall.model.Days
 import oncall.model.Month
 import oncall.util.splitByComma
@@ -9,22 +10,27 @@ import oncall.util.splitByComma
 class OnCallController(
     private val userInteractionController: UserInteractionController = UserInteractionController(),
     private val monthAndDaysValidator: MonthAndDaysValidator = MonthAndDaysValidator(),
+    private val workingPeopleValidator: WorkingPeopleValidator = WorkingPeopleValidator(),
 ) {
     fun run() {
-        val workingMonth = getMonthAndDays()
-        val weekdaysPeople = getWeekdaysPeople()
+        val monthAndDays = getMonthAndDays()
+        val (month, day) = monthAndDays.splitByComma()
+        val weekdaysWorkingPeople = getWeekdaysPeople()
+//        val workingMonth = Month(month.toInt(), Days.valueOf(day), weekdaysWorkingPeople)
+
     }
 
-    private fun getMonthAndDays(): Month {
+    private fun getMonthAndDays(): String {
         val monthAndDays = userInteractionController.handleMonthAndDays()
         monthAndDaysValidator(monthAndDays)
-        val (month, day) = monthAndDays.splitByComma()
-        val workingMonth = Month(month.toInt(), Days.valueOf(day))
-        return workingMonth
+
+        return monthAndDays
     }
 
-    private fun getWeekdaysPeople(): String {
+    private fun getWeekdaysPeople(): List<String> {
         val weekdaysPeople = userInteractionController.handleWeekdaysPeople()
-        return weekdaysPeople
+        workingPeopleValidator(weekdaysPeople)
+        val weekdaysWorkingPeople = weekdaysPeople.splitByComma()
+        return weekdaysWorkingPeople
     }
 }

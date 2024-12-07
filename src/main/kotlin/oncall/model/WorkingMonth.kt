@@ -9,13 +9,22 @@ data class WorkingMonth(
     fun showTimeTable(): List<String> {
         val workingTimeTable = getTimeTable()
         val timeTable = mutableListOf<String>()
-        var realDay = day
+        var realDay = day.index
         for (one in 0 until month.days) {
-            if ((month.holiday != null && one in month.holiday) && realDay.index != 5 && realDay.index != 6) {
-                timeTable.add("${month.month}월 ${one + 1}일 ${realDay.day}(휴일) ${workingTimeTable[one]}")
-                realDay.index++
+            if ((month.holiday != null && one in month.holiday) && realDay != 5 && realDay != 6) {
+                val ss = Days.entries.find { it.index == realDay }
+                timeTable.add("${month.month}월 ${one + 1}일 ${ss!!.day}(휴일) ${workingTimeTable[one]}")
+                realDay++
+                if (realDay > 6) {
+                    realDay = 0
+                }
             } else {
-                timeTable.add("${month.month}월 ${one + 1}일 ${realDay.day} ${workingTimeTable[one]}")
+                val ss = Days.entries.find { it.index == realDay }
+                timeTable.add("${month.month}월 ${one + 1}일 ${ss!!.day} ${workingTimeTable[one]}")
+                realDay++
+                if (realDay > 6) {
+                    realDay = 0
+                }
             }
         }
         return timeTable
@@ -27,11 +36,11 @@ data class WorkingMonth(
         var weekendIndex = 0
         var specialWeekdayIndex = 0
         var specialWeekendIndex = 0
-        var realDay = day
+        var realDay = day.index
         // 3월 31일 쉬는 날 1일
 
         for (one in 1..month.days) {
-            if (realDay.index == 5 || realDay.index == 6 || (month.holiday != null && one in month.holiday) ) {
+            if (realDay == 5 || realDay == 6 || (month.holiday != null && one in month.holiday) ) {
                 if (timeTable.isNotEmpty() && timeTable.last() == weekendPeople[weekendIndex]) {
                     timeTable.add(weekendPeople[weekendIndex + 1])
                     specialWeekendIndex = weekendIndex + 2
@@ -44,12 +53,12 @@ data class WorkingMonth(
                     weekendIndex++
                 }
 
-                realDay.index++
+                realDay++
                 if (weekdayIndex > weekendPeople.size) {
                     weekendIndex = 0
                 }
-                if (realDay.index > 6) {
-                    realDay.index = 0
+                if (realDay > 6) {
+                    realDay = 0
                 }
             } else {
                 if (timeTable.isNotEmpty() && timeTable.last() == weekdaysPeople[weekdayIndex]) {
@@ -64,12 +73,12 @@ data class WorkingMonth(
                     weekdayIndex++
                 }
 
-                realDay.index++
+                realDay++
                 if (weekdayIndex > weekdaysPeople.size) {
                     weekdayIndex = 0
                 }
-                if (realDay.index > 6) {
-                    realDay.index = 0
+                if (realDay > 6) {
+                    realDay = 0
                 }
             }
         }

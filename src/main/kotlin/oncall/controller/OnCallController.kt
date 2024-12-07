@@ -12,6 +12,7 @@ class OnCallController(
 ) {
     fun run() {
         val workingMonth = getMonthAndDays()
+        val weekdaysPeople = getWeekdaysPeople()
     }
 
     private fun getMonthAndDays(): Month {
@@ -20,5 +21,10 @@ class OnCallController(
         val (month, day) = monthAndDays.splitByComma()
         val workingMonth = Month(month.toInt(), Days.valueOf(day))
         return workingMonth
+    }
+
+    private fun getWeekdaysPeople(): String {
+        val weekdaysPeople = userInteractionController.handleWeekdaysPeople()
+        return weekdaysPeople
     }
 }

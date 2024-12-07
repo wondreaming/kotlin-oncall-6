@@ -1,7 +1,7 @@
 package oncall.model
 
 enum class Days(
-    private val days: String,
+    val day: String,
 ) {
     MONDAY("월"),
     TUESDAY("화"),

@@ -5,6 +5,7 @@ import oncall.controller.validator.MonthAndDaysValidator
 import oncall.controller.validator.WorkingPeopleValidator
 import oncall.model.Days
 import oncall.model.WorkingMonth
+import oncall.util.retryWhenNoException
 import oncall.util.splitByComma
 
 class OnCallController(
@@ -16,18 +17,17 @@ class OnCallController(
         val workingMonth = getWorkingMonth()
     }
 
-    private fun getMonthAndDays(): String {
+    private fun getMonthAndDays(): String = retryWhenNoException {
         val monthAndDays = userInteractionController.handleMonthAndDays()
         monthAndDaysValidator(monthAndDays)
-
-        return monthAndDays
+        monthAndDays
     }
 
-    private fun getWeekdaysPeople(): List<String> {
+    private fun getWeekdaysPeople(): List<String> = retryWhenNoException {
         val weekdaysPeople = userInteractionController.handleWeekdaysPeople()
         workingPeopleValidator(weekdaysPeople)
         val weekdaysWorkingPeople = weekdaysPeople.splitByComma()
-        return weekdaysWorkingPeople
+        weekdaysWorkingPeople
     }
 
     private fun getWeekendPeople(): List<String> {
@@ -40,10 +40,14 @@ class OnCallController(
     private fun getWorkingMonth(): WorkingMonth {
         val monthAndDays = getMonthAndDays()
         val (month, day) = monthAndDays.splitByComma()
-        val weekdaysWorkingPeople = getWeekdaysPeople()
-        val weekendWorkingPeople = getWeekendPeople()
-        workingPeopleValidator.checkPeople(weekdaysWorkingPeople, weekendWorkingPeople)
-        val workingMonth = WorkingMonth(month.toInt(), Days.valueOf(day), weekdaysWorkingPeople, weekendWorkingPeople)
+        val workingMonth = retryWhenNoException {
+            val weekdaysWorkingPeople = getWeekdaysPeople()
+            val weekendWorkingPeople = getWeekendPeople()
+            workingPeopleValidator.checkPeople(weekdaysWorkingPeople, weekendWorkingPeople)
+            val realDay = Days.entries.find { it.day == day }
+            WorkingMonth(month.toInt(), realDay!!, weekdaysWorkingPeople, weekendWorkingPeople)
+
+        }
         return workingMonth
     }
 }

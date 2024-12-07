@@ -1,4 +1,7 @@
 package oncall.model
 
-class Month {
+data class Month(
+    private val month: Int,
+    private val day: Days
+) {
 }

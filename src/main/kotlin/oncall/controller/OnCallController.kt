@@ -16,7 +16,7 @@ class OnCallController(
 ) {
     fun run() {
         val workingMonth = getWorkingMonth()
-        val workingTimeTable = workingMonth.showTimeTable()
+        val workingTimeTable = workingMonth.getTimeTable()
         userInteractionController.handleTimeTable(workingTimeTable)
     }
 

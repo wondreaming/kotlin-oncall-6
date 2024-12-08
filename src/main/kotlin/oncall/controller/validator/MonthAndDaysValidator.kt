@@ -1,5 +1,6 @@
 package oncall.controller.validator
 
+import oncall.model.Days
 import oncall.util.splitByComma
 
 class MonthAndDaysValidator {
@@ -26,7 +27,6 @@ class MonthAndDaysValidator {
     }
 
     private fun checkDays(input: String) {
-        val days = listOf("월", "화", "수", "목", "금", "토", "일")
-        require(input in days) { MonthAndDaysErrorType.EMPTY_INPUT }
+        require(Days.entries.any { it.day == input }) { MonthAndDaysErrorType.EMPTY_INPUT }
     }
 }
